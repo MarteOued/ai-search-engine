@@ -121,7 +121,7 @@ class SearchEngine:
             if norms[i] > 0:
                 mat_norm.data[mat_norm.indptr[i]:mat_norm.indptr[i+1]] /= norms[i]
 
-        # Produit scalaire → similarité cosinus
+        # Produit scalaire _ similarité cosinus
         scores = mat_norm.dot(vec_requete)
 
         # Tri décroissant
