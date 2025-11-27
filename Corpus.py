@@ -1,212 +1,142 @@
 # -*- coding: utf-8 -*-
 """
-================================================================================
-                            FICHIER : Corpus.py
-================================================================================
-
-
-                            DESCRIPTION
+Corpus.py
 
 Ce fichier contient la classe Corpus qui gère l'ensemble de la collection
-de documents et d'auteurs du projet.
+de documents et d'auteurs du proje et Implémente le pattern Singleton : une seule instance possible.
 
-RÔLE DE LA CLASSE CORPUS :
-    - Stocker tous les documents dans un dictionnaire (id2doc)
-    - Gérer automatiquement les auteurs et leurs productions
-    - Fournir des méthodes de tri et d'affichage
-    - Permettre la sauvegarde et le chargement depuis CSV
-    - Implémenter le pattern Singleton (TD5)
-
-ATTRIBUTS PRINCIPAUX :
-    - nom (str)        : Nom du corpus
-    - authors (dict)   : Dictionnaire {nom_auteur: objet Author}
-    - id2doc (dict)    : Dictionnaire {id_document: objet Document}
-    - ndoc (int)       : Compteur de documents
-    - naut (int)       : Compteur d'auteurs
-
-MÉTHODES PRINCIPALES :
-    - add_document()       : Ajoute un document au corpus
-    - show()              : Affiche les documents
-    - trier_par_date()    : Tri chronologique
-    - trier_par_titre()   : Tri alphabétique
-    - save()              : Sauvegarde en CSV
-    - load()              : Chargement depuis CSV
-
-PATTERN SINGLETON (TD5) :
-    On garantit qu'il n'existe qu'une seule instance de Corpus dans le
-    programme. Si on essaie de créer un deuxième Corpus, on récupère
-    automatiquement l'instance existante.
-
-================================================================================
 """
                        # IMPORTATION DES LIBRAIRIES
 
-import pandas as pd           # Pour manipuler les tableaux de données
-from datetime import datetime # Pour gérer les dates
+import pandas as pd                            # pour manipuler les tableaux de données
+from datetime import datetime                  # pour gérer les dates
 
-# CLASSE CORPUS (SINGLETON)
+                      # CLASSE CORPUS (SINGLETON)      Par Julien
 
-class Corpus:                 # Classe représentant un corpus de documents.
-                              # Implémente le pattern Singleton : une seule instance possible.
-    
-    
-    # Variable de classe pour stocker l'instance unique (Singleton)
-    _instance = None
+class Corpus:                 
+                         
+    _instance = None            # variable de classe pour stocker l'instance unique (Singleton)
     
   # TD5 - PATTERN SINGLETON : Contrôle de la création d'instance
    
     def __new__(cls, nom="Corpus"):
-        """
-        Méthode spéciale appelée AVANT __init__ lors de la création d'un objet.
-        Implémente le pattern Singleton.
         
-        Principe :
-            - Si aucune instance n'existe (_instance = None), on en crée une
-            - Si une instance existe déjà, on la retourne
-            - Résultat : il n'y aura toujours qu'UNE SEULE instance de Corpus
-        
-        Paramètres:
-            nom (str): Le nom du corpus (ignoré si instance déjà créée)
-        
-        Retourne:
-            Corpus: L'instance unique du Corpus
-        """
         if cls._instance is None:
-            # Première création : on crée une nouvelle instance
+            # première création : on crée une nouvelle instance
             print(f"[Singleton] Création de l'instance unique du Corpus")
             cls._instance = super().__new__(cls)
-            # On ajoute un flag pour savoir si l'initialisation a été faite
+            # on ajoute un flag pour savoir si l'initialisation a été faite
             cls._instance._initialized = False
         else:
-            # Instance déjà existante : on la réutilise
-            print(f"[Singleton] Instance du Corpus déjà existante, réutilisation")
+            # instance déjà existante : on la réutilise
+            print(f" Instance du Corpus déjà existante, réutilisation")
         
         return cls._instance
     
    # CONSTRUCTEUR
    
     def __init__(self, nom="Corpus"):
-        """
-        Constructeur de la classe Corpus.
-        N'initialise qu'une seule fois grâce au flag _initialized.
         
-        Paramètres:
-            nom (str): Le nom du corpus
-        
-        Note :
-            Grâce au Singleton, même si __init__ est appelé plusieurs fois,
-            les attributs ne sont initialisés qu'une seule fois.
-        """
-        # On vérifie si l'initialisation a déjà été faite
+        # on vérifie si l'initialisation a déjà été faite
         if not self._initialized:
-            # Première initialisation
+            # première initialisation
             self.nom = nom
-            self.authors = {}  # Dictionnaire des auteurs {nom: Author}
-            self.id2doc = {}   # Dictionnaire des documents {id: Document}
-            self.ndoc = 0      # Compteur de documents
-            self.naut = 0      # Compteur d'auteurs
+            self.authors = {}  # dictionnaire des auteurs {nom: Author}
+            self.id2doc = {}   # dictionnaire des documents {id: Document}
+            self.ndoc = 0      # compteur de documents
+            self.naut = 0      # compteur d'auteurs
             self._initialized = True
-            print(f"[Singleton] Corpus '{self.nom}' initialisé")
+            self.vocabulaire = {} # dictionnaire mot -> identifiant (int)
+            self.matrice_tfidf = None # La matrice finale
+            print(f" Corpus '{self.nom}' initialisé")
     
-   # MÉTHODE PRINCIPALE : AJOUT D'UN DOCUMENT
+   # MÉTHODE PRINCIPALE : AJOUT D'UN DOCUMENT            Par Martine
     
-    def add_document(self, document):        # On ajoute un document au corpus
+    def add_document(self, document):        # on ajoute un document au corpus
         
-        # Étape 1 : Générer un ID unique pour le document
+        # on gener un ID unique pour le document
         doc_id = self.ndoc
         
-        # Étape 2 : Ajouter le document au dictionnaire id2doc
+        # on ajoute le document au dictionnaire id2doc
         self.id2doc[doc_id] = document
         self.ndoc += 1
         
-        # Étape 3 : Gérer l'auteur
+        # on gere l'auteur
         auteur_nom = document.auteur
         
-        # Étape 4 : Si l'auteur n'existe pas encore, on le crée
+        # si l'auteur n'existe pas encore, on le crée
         if auteur_nom not in self.authors:
             from Author import Author
             self.authors[auteur_nom] = Author(auteur_nom)
             self.naut += 1
         
-        # Étape 5 : Ajouter le document à la production de l'auteur
+        # on ajoute le document à la production de l'auteur
         self.authors[auteur_nom].add(doc_id, document)
     
     # MÉTHODES D'AFFICHAGE
     
-    def __repr__(self):           # Représentation textuelle du corpus.
+    def __repr__(self):           
         
         return f"Corpus '{self.nom}': {self.ndoc} documents, {self.naut} auteurs"
     
     def show(self, n=10):
 
-        print("="*70)
         print(f"Corpus: {self.nom}")
         print(f"Nombre de documents: {self.ndoc}")
         print(f"Nombre d'auteurs: {self.naut}")
-        print("="*70)
+        
         
         print(f"\n Affichage des {min(n, self.ndoc)} premiers documents:\n")
         
-        # On parcourt le dictionnaire et on compte jusqu'à n
+        # on parcourt le dictionnaire et on compte jusqu'à n
         compteur = 0
         for doc_id, doc in self.id2doc.items():
             if compteur >= n:
                 break
-            print(f"{compteur+1}. {doc}")  # Utilise la méthode __str__ du document
+            print(f"{compteur+1}. {doc}")  # utilise la méthode __str__ du document
             compteur += 1
     
-    # MÉTHODES DE TRI
+    # MÉTHODES DE Trie et affiche les documents par date de publication.    Par Julien
    
     def trier_par_date(self, n=10, ordre_croissant=True):
-        """
-        Trie et affiche les documents par date de publication.
-        
-        Comment:
-            1. On transforme le dictionnaire en liste de tuples (id, document)
-            2. On trie cette liste selon la date du document
-            3. On affiche les n premiers résultats
-        """
-        # Étape 1 : Créer une liste de tuples (doc_id, document)
+       
+        # on crée une liste de tuples (doc_id, document)
         docs_liste = list(self.id2doc.items())
         
-        # Étape 2 : Trier par date
+        # Trie par date
         # reverse=not ordre_croissant : si ordre_croissant=False, reverse=True
         docs_tries = sorted(docs_liste, 
                            key=lambda x: x[1].date, 
                            reverse=not ordre_croissant)
         
-        # Étape 3 : Afficher les résultats
-        print("="*70)
+        # affichage des résultats
         print(f"Documents triés par date ({'croissant' if ordre_croissant else 'décroissant'}):")
-        print("="*70)
+       
         
         for i, (doc_id, doc) in enumerate(docs_tries[:n]):
             # strftime('%Y-%m-%d') : formatte la date en YYYY-MM-DD
             print(f"{i+1}. [{doc.date.strftime('%Y-%m-%d')}] {doc.titre} ({doc.type})")
     
-    def trier_par_titre(self, n=10):        # Trie et affiche les documents par titre (ordre alphabétique).
-        
-                                               # .lower() permet un tri insensible à la casse
+    def trier_par_titre(self, n=10):
        
-        # Étape 1 : Créer une liste de tuples (doc_id, document)
+        # on crée une liste de tuples (doc_id, document)
         docs_liste = list(self.id2doc.items())
         
-        # Étape 2 : Trier par titre (en minuscules pour ignorer la casse)
+        # trie par titre (en minuscules pour ignorer la casse)
         docs_tries = sorted(docs_liste, key=lambda x: x[1].titre.lower())
         
-        # Étape 3 : Afficher les résultats
-        print("="*70)
+        # affichage des résultats
         print(f"Documents triés par titre (alphabétique):")
-        print("="*70)
+        
         
         for i, (doc_id, doc) in enumerate(docs_tries[:n]):
             print(f"{i+1}. {doc.titre} ({doc.type})")
     
-  # MÉTHODES DE SAUVEGARDE ET CHARGEMENT
+  # MÉTHODES DE SAUVEGARDE ET CHARGEMENT          Par Martine
     
     def save(self, nom_fichier):
         
-        # Étape 1 : Créer une liste de dictionnaires
+        # on crée une liste de dictionnaires
         data = []
         for doc_id, doc in self.id2doc.items():
             data.append({
@@ -219,10 +149,10 @@ class Corpus:                 # Classe représentant un corpus de documents.
                 'type': doc.type
             })
         
-        # Étape 2 : Créer un DataFrame pandas
+        # Et ensuite on crée un DataFrame pandas
         df = pd.DataFrame(data)
         
-        # Étape 3 : Sauvegarder en CSV
+        # En fin on sauvegarder en CSV
         # sep='\t' : séparateur = tabulation
         # index=False : ne pas sauvegarder l'index de pandas
         df.to_csv(nom_fichier, sep='\t', index=False)
@@ -230,37 +160,209 @@ class Corpus:                 # Classe représentant un corpus de documents.
     
     @staticmethod
     def load(nom_fichier):
-            # @staticmethod signifie qu'on peut appeler cette méthode
-            # sans avoir créé d'instance de Corpus.
-           
-        from Document import Document
-        
-        # Étape 1 : Charger le CSV
+        from DocumentFactory import DocumentFactory
+    
+        # chargement du CSV
         df = pd.read_csv(nom_fichier, sep='\t')
-        
-        # Étape 2 : Créer un nouveau corpus
+    
+        # on réer un nouveau corpus vide
         corpus = Corpus("Corpus chargé")
-        
-        # Étape 3 : Pour chaque ligne du CSV
-        for index, row in df.iterrows():
-            # Convertir la date (qui est en format texte dans le CSV)
+        corpus.id2doc.clear()
+        corpus.authors.clear()
+        corpus.ndoc = 0
+        corpus.naut = 0
+    
+        # on parcourt les lignes et recréer les bons objets
+        for _, row in df.iterrows():
             date = pd.to_datetime(row['date'])
-            
-            # Créer un objet Document
-            doc = Document(
+            doc = DocumentFactory.create_document(
+                doc_type=row['type'],   # "reddit" ou "arxiv"
                 titre=row['titre'],
                 auteur=row['auteur'],
                 date=date,
                 url=row['url'],
-                texte=row['texte'],
-                type_doc=row['type']
+                texte=row['texte']
             )
-            
-            # Étape 4 : Ajouter au corpus
-            # La méthode add_document() gère automatiquement les auteurs
             corpus.add_document(doc)
-        
+    
         print(f" Corpus chargé depuis '{nom_fichier}'")
         return corpus
 
 
+    # TD6 - PARTIE 1 : EXPRESSIONS RÉGULIÈRES   Par Julien
+    
+    """
+    On construit une chaîne unique contenant tous les textes du corpus.
+    Cette méthode est appelée automatiquement la première fois qu'on
+    fait une recherche, puis le résultat est stocké en cache.
+    """
+    
+    def build_full_text(self):
+        
+        if not hasattr(self, '_full_text') or self._full_text is None:
+            print("Construction de la chaîne complète (première fois)...")
+            # on joint tous les textes avec un espace
+            textes = [doc.texte for doc in self.id2doc.values()]
+            self._full_text = ' '.join(textes)
+            print(f" Chaîne construite : {len(self._full_text)} caractères")
+        return self._full_text
+    
+    def search(self, mot_cle):
+        import re
+        
+        # on construit la chaîne complète (une seule fois)
+        full_text = self.build_full_text()
+        
+        # on crée le pattern de recherche (insensible à la casse)
+        # \b = frontière de mot
+        pattern = re.compile(r'\b' + re.escape(mot_cle) + r'\b', re.IGNORECASE)
+        
+        # on trouve toutes les occurrences
+        resultats = pattern.finditer(full_text)
+        
+        # on extrait les passages (avec un peu de contexte)
+        passages = []
+        taille_contexte = 50  # 50 caractères avant et après
+        
+        for match in resultats:
+            debut = max(0, match.start() - taille_contexte)
+            fin = min(len(full_text), match.end() + taille_contexte)
+            passage = full_text[debut:fin]
+            passages.append(passage)
+        
+        print(f"'{mot_cle}' trouvé {len(passages)} fois")
+        return passages
+    
+        """
+        On construit un concordancier pour une expression donnée.
+        Un concordancier affiche le mot recherché avec son contexte
+        gauche et droit dans un tableau structuré.
+        
+        """
+    def concorde(self, expression, taille_contexte=30):
+        
+        import re
+        import pandas as pd
+        
+        # on construit la chaîne complète
+        full_text = self.build_full_text()
+        
+        # pattern de recherche (insensible à la casse)
+        pattern = re.compile(r'\b' + re.escape(expression) + r'\b', re.IGNORECASE)
+        
+        # on trouve toutes les occurrences
+        resultats = pattern.finditer(full_text)
+        
+        # on construit le concordancier
+        data = []
+        for match in resultats:
+            # contexte gauche
+            debut_gauche = max(0, match.start() - taille_contexte)
+            contexte_gauche = full_text[debut_gauche:match.start()]
+            
+            # motif trouvé (le mot lui-même)
+            motif = match.group()
+            
+            # contexte droit
+            fin_droit = min(len(full_text), match.end() + taille_contexte)
+            contexte_droit = full_text[match.end():fin_droit]
+            
+            # On ajoute à la liste
+            data.append({
+                'contexte_gauche': contexte_gauche.strip(),
+                'motif_trouve': motif,
+                'contexte_droit': contexte_droit.strip()
+            })
+        
+        # on crée le DataFrame
+        concordancier = pd.DataFrame(data)
+        
+        print(f"Concorde '{expression}' trouvé {len(data)} fois")
+        return concordancier
+    
+   # TD6 - PARTIE 2 : STATISTIQUES TEXTUELLES  Par Martine
+    
+    
+    @staticmethod
+    def nettoyer_texte(texte):            # on nettoie et normalise un texte pour l'analyse.
+        import re
+        
+        # on met en minuscules
+        texte = texte.lower()
+        
+        # on remplace les sauts de ligne
+        texte = texte.replace('\n', ' ')
+        texte = texte.replace('\r', ' ')
+        
+        # on supprime la ponctuation (on garde les espaces)
+        texte = re.sub(r'[^\w\s]', ' ', texte)
+        
+        # on supprime les chiffres
+        texte = re.sub(r'\d+', ' ', texte)
+        
+        # on supprime les espaces multiples
+        texte = re.sub(r'\s+', ' ', texte)
+        
+        # on supprime les espaces en début/fin
+        texte = texte.strip()
+        
+        return texte
+    
+    def stats(self, n=10):
+        import pandas as pd
+        from collections import Counter
+        
+        print("           STATISTIQUES TEXTUELLES DU CORPUS")
+        
+        
+        # dictionnaire pour compter les occurrences totales
+        term_frequency = Counter()
+        
+        # dictionnaire pour compter dans combien de documents chaque mot apparaît
+        document_frequency = Counter()
+        
+        # on parcourt tous les documents une seule fois 
+        for doc_id, doc in self.id2doc.items():
+            # on nettoie le texte
+            texte_propre = self.nettoyer_texte(doc.texte)
+            # Stop words anglais courants
+            stop_words = {'the', 'and', 'of', 'to', 'in', 'a', 'is', 'that', 'for', 
+                          'it', 'as', 'on', 'with', 'be', 'this', 'are', 'by', 'at', 
+                          'an', 'or', 'from', 'can', 'has', 'have', 'will', 'would'}
+
+            # on sépare en mots
+            mots = texte_propre.split()
+            
+            # filtrer les stop words
+            mots = [mot for mot in mots if mot not in stop_words and len(mot) > 2]
+
+            
+            # on compte les occurrences totales
+            term_frequency.update(mots)
+            
+            # on compte la présence dans ce document (un mot = une fois par doc max)
+            mots_uniques = set(mots)  # on élimine les doublons dans ce document
+            document_frequency.update(mots_uniques)
+        
+        # on crée le DataFrame et on trie par occurrences
+        data = []
+        for mot, tf in term_frequency.items():
+            df = document_frequency[mot]
+            data.append({
+                'mot': mot,
+                'occurrences': tf,
+                'documents': df
+            })
+        
+        freq_table = pd.DataFrame(data)
+        freq_table = freq_table.sort_values('occurrences', ascending=False)
+        freq_table = freq_table.reset_index(drop=True)
+        
+        # on affiche les statistiques
+        print(f"\n Nombre de mots différents : {len(freq_table)}")
+        print(f"\n Top {n} des mots les plus fréquents :")
+        print(freq_table.head(n).to_string(index=False))
+        
+        print("\n" + "="*70)
+        
+        return freq_table

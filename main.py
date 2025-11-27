@@ -1,71 +1,39 @@
 # -*- coding: utf-8 -*-
 """
-================================================================================
-                    PROJET : MOTEUR DE RECHERCHE D'INFORMATION
-================================================================================
+                   PROJET : MOTEUR DE RECHERCHE D'INFORMATION
 
 Auteurs : Julien et Martine
 Date    : Novembre 2025
 Thématique : Intelligence Artificielle
 
-================================================================================
-                            DESCRIPTION GÉNÉRALE
-================================================================================
+
 
 Ce programme implémente un moteur de recherche d'information sur le thème de
 l'Intelligence Artificielle. Il est divisé en plusieurs parties :
 
-TD3 - ACQUISITION DES DONNÉES :
-    - Connexion aux APIs Reddit et Arxiv
-    - Récupération de 200 documents (100 Reddit + 100 Arxiv)
-    - Extraction des métadonnées (titre, auteur, date, texte, etc.)
-    - Nettoyage et filtrage des données
-    - Sauvegarde dans un fichier CSV
+TD3, TD4, TD5, TD6; TD7
 
-TD4 - STRUCTURATION AVEC LES CLASSES :
-    - Création de la classe Document (représente un document)
-    - Création de la classe Author (représente un auteur)
-    - Création de la classe Corpus (gère la collection)
-    - Refactorisation du code avec la POO
-    - Organisation en modules séparés
-
-TD5 - HÉRITAGE ET PATRONS DE CONCEPTION :
-    - Création de RedditDocument et ArxivDocument (héritage)
-    - Ajout d'attributs spécifiques (commentaires, co-auteurs)
-    - Implémentation du pattern Singleton (Corpus unique)
-    - Implémentation du pattern Factory (création automatique)
-    - Tests et validation
-
-RÉSULTAT FINAL :
-    - 110 documents structurés dans un corpus
-    - 96 auteurs identifiés
-    - Classes hiérarchisées et patterns appliqués
-    - Données sauvegardées et réutilisables
-
-================================================================================
 """
                             # IMPORTATION DES LIBRAIRIES
 
 
-import praw                        # Pour se connecter à Reddit
-import urllib.request              # Pour faire des requêtes web (Arxiv)
-import xmltodict                   # Pour lire les réponses d'Arxiv (XML)
-import pandas as pd                # Pour manipuler les données (tableaux)
-from datetime import datetime      # Pour gérer les dates
-                          
+import praw                        # pour se connecter à Reddit
+import urllib.request              # pour faire des requêtes web (Arxiv)
+import xmltodict                   # pour lire les réponses d'Arxiv (XML)
+import pandas as pd                # pour manipuler les données (tableaux)
+from datetime import datetime      # pour gérer les dates
+from SearchEngine import SearchEngine
+
                         # TD3 - PARTIE 1 : ACQUISITION DES DONNÉES
 
-
-print("="*70)
 print("           TD3 - ACQUISITION DES DONNÉES")
-print("="*70)
+
 
 # 1.1 RÉCUPÉRATION DES DONNÉES REDDIT
 
-
 print("\n Connexion à l'API Reddit ")
 
-# On se connecte à Reddit avec nos identifiants développeur
+# on se connecte à Reddit avec nos identifiants développeur
 
 reddit = praw.Reddit(
     client_id="LE2COTSsmlNvVRBivOkeqA",
@@ -74,38 +42,39 @@ reddit = praw.Reddit(
 )
 print(" Connexion à Reddit réussie !")
 
-# Liste qui va contenir tous nos documents (Reddit + Arxiv)
+# liste qui va contenir tous nos documents (Reddit + Arxiv)
 docs = []
 
 # Thématique que nous avons choisie : Intelligence Artificielle
 
 query = "artificial intelligence"
-limit = 100  # Nombre de posts à récupérer
+limit = 100  # nombre de posts à récupérer
 
 print(f"\n Recherche de posts Reddit sur '{query}'...")
 print(f"Limite fixée : {limit} posts")
 
-# On lance la recherche sur Reddit (tous les subreddits)
+# on lance la recherche sur Reddit (tous les subreddits)
 subreddit = reddit.subreddit("all")
 hot_posts = subreddit.search(query, limit=limit)
 
-# On parcourt tous les posts trouvés
+# on parcourt tous les posts trouvés
 compteur_reddit = 0
 for post in hot_posts:
-    # Extraction des informations de base
+    # extraction des informations de base
     titre = post.title
     auteur = str(post.author)
     date = datetime.fromtimestamp(post.created_utc)
     url = f"https://www.reddit.com{post.permalink}"
     texte = post.selftext
     
-    # Nettoyage : on remplace les sauts de ligne par des espaces
+    # nettoyage : on remplace les sauts de ligne par des espaces
     texte = texte.replace("\n", " ")
     
-    # TD5 : On récupère aussi le nombre de commentaires (spécifique à Reddit)
-    nb_commentaires = post.num_comments
+    # TD5 : on récupère aussi le nombre de commentaires (spécifique à Reddit)
+    nb_commentaires = post.num_comments if hasattr(post, "num_comments") else 0
+
     
-    # On crée un dictionnaire avec toutes les métadonnées
+    # on crée un dictionnaire avec toutes les métadonnées
     document = {
         "titre": titre,
         "auteur": auteur,
@@ -116,7 +85,7 @@ for post in hot_posts:
         "nb_commentaires": nb_commentaires  # Spécifique Reddit (TD5)
     }
     
-    # On ajoute ce document à notre liste
+    # on ajoute ce document à notre list
     docs.append(document)
     compteur_reddit += 1
 
@@ -130,51 +99,51 @@ print(" Récupération des articles Arxiv...")
 
 # Construction de l'URL pour interroger l'API Arxiv
 
-query_arxiv = "artificial+intelligence"  # Les espaces deviennent des +
+query_arxiv = "artificial+intelligence"  # les espaces deviennent des +
 url = f"http://export.arxiv.org/api/query?search_query=all:{query_arxiv}&start=0&max_results=100"
 
 print(f"URL : {url}")
 
-# On fait la requête HTTP à l'API Arxiv
+# on fait la requête HTTP à l'API Arxiv
 try:
     response = urllib.request.urlopen(url)
     data = response.read().decode('utf-8')
     
-    # On transforme le XML reçu en dictionnaire Python
+    # on transforme le XML reçu en dictionnaire Python
     arxiv_data = xmltodict.parse(data)
     entries = arxiv_data['feed']['entry']
     
     print(f" {len(entries)} articles Arxiv trouvés")
     
-    # On parcourt tous les articles
+    # on parcourt tous les articles
     compteur_arxiv = 0
     for entry in entries:
-        # Extraction du titre
+        # extrai du titre
         titre = entry['title']
         
         # TD5 : Gestion des co-auteurs (spécifique à Arxiv)
-        # Un article peut avoir un ou plusieurs auteurs
+        # un article peut avoir un ou plusieurs auteurs
         co_auteurs = []
         if isinstance(entry['author'], list):
             # Cas 1 : Plusieurs auteurs
-            auteur = entry['author'][0]['name']  # Le premier est l'auteur principal
-            # Les autres sont des co-auteurs
+            auteur = entry['author'][0]['name']  # le premier est l'auteur principal
+            # les autres sont des co-auteurs
             co_auteurs = [a['name'] for a in entry['author'][1:]]
         else:
             # Cas 2 : Un seul auteur
             auteur = entry['author']['name']
             co_auteurs = []  # Pas de co-auteurs
         
-        # Conversion de la date (format ISO)
+        # on converti la date (format ISO)
         date_str = entry['published']
         date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
         
-        # Récupération de l'URL et du résumé
+        # récupere l'URL et le résumé
         url = entry['id']
         texte = entry['summary']
         texte = texte.replace("\n", " ")
         
-        # On crée un dictionnaire avec toutes les métadonnées
+        # on crée un dictionnaire avec toutes les métadonnées
         document = {
             "titre": titre,
             "auteur": auteur,
@@ -192,12 +161,11 @@ try:
     
 except Exception as e:
     print(f" Erreur lors de la récupération Arxiv : {e}")
+    
 # VÉRIFICATION DES DONNÉES RÉCUPÉRÉES
 
-
-print("\n" + "="*70)
 print("           VÉRIFICATION DES DONNÉES")
-print("="*70)
+
 
 print(f"\n Nombre total de documents récupérés : {len(docs)}")
 print(f"   - Reddit : {compteur_reddit}")
@@ -227,10 +195,8 @@ for doc in docs:
 
                  # TD4 : STRUCTURATION AVEC LES CLASSES
 
-
-print("\n" + "="*70)
 print("           TD4 - STRUCTURATION AVEC LES CLASSES")
-print("="*70)
+
 
 # Importation de nos classes personnalisées
 from Document import Document
@@ -238,7 +204,7 @@ from Author import Author
 from Corpus import Corpus
 
 # Création du corpus principal
-# A noté que : Le pattern Singleton (TD5) garantit qu'il n'y aura qu'une seule instance
+# a noté que : Le pattern Singleton (TD5) garantit qu'il n'y aura qu'une seule instance
 corpus = Corpus("Corpus Intelligence Artificielle")
 print(f"\n Création du corpus '{corpus.nom}'")
 
@@ -252,25 +218,21 @@ from DocumentFactory import DocumentFactory
 compteur_ajoutes = 0
 compteur_ignores = 0
 
-# On parcourt tous les documents récupérés
+# on parcourt tous les documents récupérés
 for doc_dict in docs:
-    # Filtrage : on ignore les documents avec un texte trop court
-    # Décision du binôme : seuil minimal de 10 caractères
+    # on ignore les documents avec un texte trop court
+    # décision du binôme : seuil minimal de 10 caractères
     texte = doc_dict['texte']
     if not texte or len(texte.strip()) < 10:
         compteur_ignores += 1
-        continue  # On passe au document suivant
+        continue  # on passe au document suivant
     
     # TD5 - FACTORY PATTERN : Création automatique du bon type de document
-    # La Factory décide automatiquement si c'est un RedditDocument ou ArxivDocument
+    # la Factory décide automatiquement si c'est un RedditDocument ou ArxivDocument
     # selon le champ 'origine' du dictionnaire
     doc = DocumentFactory.create_from_dict(doc_dict)
     
-    # Ajout au corpus
-    # Note : La méthode add_document() gère automatiquement :
-    # - La création des auteurs s'ils n'existent pas encore
-    # - L'association document-auteur
-    # - L'incrémentation des compteurs
+    # ajout au corpus
     corpus.add_document(doc)
     compteur_ajoutes += 1
 
@@ -283,10 +245,8 @@ print(corpus)
 
 # AFFICHAGE ET MANIPULATION DU CORPUS
 
-
-print("\n" + "="*70)
 print("           EXPLORATION DU CORPUS")
-print("="*70)
+
 
 # Affichage des 5 premiers documents
 print("\n Affichage des 5 premiers documents :")
@@ -303,16 +263,14 @@ corpus.trier_par_titre(n=5)
 # Statistiques d'un auteur (exemple)
 print("\n Statistiques d'un auteur (exemple) :")
 if corpus.authors:
-    # On prend le premier auteur du dictionnaire pour l'exemple
+    # on prend le premier auteur du dictionnaire pour l'exemple
     premier_auteur_nom = list(corpus.authors.keys())[0]
     premier_auteur = corpus.authors[premier_auteur_nom]
     premier_auteur.afficher_stats()
 
 # SAUVEGARDE DU CORPUS
 
-print("\n" + "="*70)
 print("           SAUVEGARDE DES DONNÉES")
-print("="*70)
 
 nom_fichier = "corpus_v1.csv"
 print(f"\n Sauvegarde du corpus dans '{nom_fichier}'...")
@@ -332,15 +290,12 @@ else:
                  
                     # TD5 : VÉRIFICATION DES CLASSES FILLES
 
-
-print("\n" + "="*70)
 print("           TD5 - VÉRIFICATION DES CLASSES FILLES")
-print("="*70)
 
-# On importe les classes filles pour les tests
+#on importe les classes filles pour les tests
 from Document import RedditDocument, ArxivDocument
 
-# Comptage des documents par type
+# compte des documents par type
 nb_reddit = 0
 nb_arxiv = 0
 
@@ -379,9 +334,7 @@ for doc_id, doc in corpus.id2doc.items():
 
 # TD5 : TEST DES PATRONS DE CONCEPTION
 
-print("\n" + "="*70)
 print("           TD5 - PATRONS DE CONCEPTION")
-print("="*70)
 
 # Test du pattern Singleton
 
@@ -405,7 +358,7 @@ print(f"Nombre de documents dans corpus2 : {corpus2.ndoc}")
 print("\n Test du pattern Factory :")
 print(" Création de documents avec la Factory")
 
-# On crée un dictionnaire de test pour un document Reddit
+# on crée un dictionnaire de test pour un document Reddit
 test_dict_reddit = {
     'origine': 'reddit',
     'titre': 'Test Factory Reddit',
@@ -416,7 +369,7 @@ test_dict_reddit = {
     'nb_commentaires': 99
 }
 
-# La Factory crée automatiquement un RedditDocument
+# la Factory crée automatiquement un RedditDocument
 doc_test = DocumentFactory.create_from_dict(test_dict_reddit)
 
 print(f"   Document créé : {doc_test}")
@@ -429,10 +382,7 @@ print(f"   Méthode get_type() : {doc_test.get_type()}")
 
 # FIN DU PROGRAMME
 
-
-print("\n" + "="*70)
-print("           TD3, TD4 et TD5 TERMINÉS AVEC SUCCÈS ")
-print("="*70)
+print("           TD3, TD4 et TD5 TERMINÉS ")
 
 print("\n Récapitulatif final :")
 print(f"   - Documents récupérés : {len(docs)}")
@@ -441,4 +391,72 @@ print(f"   - Auteurs identifiés : {corpus.naut}")
 print(f"   - RedditDocument : {nb_reddit}")
 print(f"   - ArxivDocument : {nb_arxiv}")
 print(f"   - Fichier sauvegardé : {nom_fichier}")
-print("="*70)
+
+#                    TD6 - ANALYSE DU CONTENU TEXTUEL
+
+print("           TD6 - ANALYSE DU CONTENU TEXTUEL")
+
+# TEST 1 : RECHERCHE D'UN MOT-CLÉ
+
+print("\n Test 1 : Recherche du mot 'intelligence'")
+passages = corpus.search("intelligence")
+print(f"\nAffichage des 3 premiers passages :")
+for i, passage in enumerate(passages[:3], 1):
+    print(f"\n{i}. ...{passage}...")
+
+# TEST 2 : CONCORDANCIER
+
+print(" Test 2 : Concordancier pour 'artificial'")
+concordancier = corpus.concorde("artificial", taille_contexte=40)
+print("\nAffichage des 10 premières lignes :")
+print(concordancier.head(10))
+
+# TEST 3 : STATISTIQUES TEXTUELLES
+
+
+print("Test 3 : Statistiques textuelles")
+freq_table = corpus.stats(20)
+
+# on sauvegarde le tableau des fréquences 
+freq_table.to_csv("frequences.csv", sep='\t', index=False)
+print("\n Tableau des fréquences sauvegardé dans 'frequences.csv'")
+
+# TEST 4 : NETTOYAGE DE TEXTE
+
+print(" Test 4 : Démonstration du nettoyage de texte")
+texte_test = "Hello, World! This is a TEST 123. New line:\nSecond line."
+texte_nettoye = Corpus.nettoyer_texte(texte_test)
+print(f"Avant : {texte_test}")
+print(f"Après : {texte_nettoye}")
+print("                 TD6 TERMINÉ : Analyse textuelle complétée !")
+
+
+#                    TD7 - IMPLEMENTATION MOTEUR DE RECHERCHE
+print("\n--- TD7 : MOTEUR DE RECHERCHE ---")
+
+# 1. Instanciation du moteur (Prend le corpus en paramètre)
+# La matrice est construite automatiquement ici grâce au __init__
+engine = SearchEngine(corpus)
+
+# 2. Affichage du vocabulaire enrichi (limité à 20 mots pour lisibilité)
+print("\n--- Aperçu du vocabulaire enrichi de tout le corpus (20 mots) ---")
+for i, (mot, infos) in enumerate(engine.vocab.items()):
+    if i >= 20:
+        print("... (vocabulaire limité a 20 pour éviter un affichage trop long)")
+        break
+    print(f"{mot} => {infos}")
+
+# 3. Lancement d'une recherche
+requete = "artificial intelligence jobs"
+print(f"\nRecherche pour : '{requete}'")
+
+# 4. Récupération des résultats sous forme de DataFrame
+df_resultats = engine.search(requete, n_results=5)
+
+# 5. bel affichage avec Pandas
+if not df_resultats.empty:
+    print("\nRésultats trouvés :")
+    # On affiche juste quelques colonnes intéressantes
+    print(df_resultats[['Score', 'Titre', 'Source']])
+else:
+    print("Aucun résultat trouvé.")
