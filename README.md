@@ -29,19 +29,30 @@ Pour exécuter le programme principal (acquisition, analyse et démonstration de
 python main.py
 
 Structure du projet 
-├── main.py # Programme principal et tests 
+
+├── main.py # Programme principal et tests
+
 ├── SearchEngine.py # Moteur de recherche (TF-IDF, Cosinus) 
+
 ├── Corpus.py # Classe Corpus (Singleton, Gestion des données) 
+
 ├── Document.py # Classes Document, RedditDocument, ArxivDocument 
+
 ├── Author.py # Classe Author 
+
 ├── DocumentFactory.py # Factory Pattern pour création d'objets  
+
 ├── .gitignore # Fichiers à ignorer par Git
+
 ├── requirements.txt # Bibliothèques nécessaires 
+
 └── README.md # Documentation du projet
 
 Version 1 : TD3-5 — Acquisition, Structuration et Héritage. 
+
 Version 2 : TD6-7 — Analyse textuelle, Indexation et Moteur de recherche.
 
 Licence 
 Projet universitaire – Université Lumière Lyon 2. 
+
 Ce projet a été réalisé dans le cadre d’un travail académique et n’est pas destiné à un usage commercial.
