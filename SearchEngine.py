@@ -24,7 +24,7 @@ class SearchEngine:
     def _construire_matrices(self):
         print("[SearchEngine] Construction du vocabulaire et des matrices...")
 
-        # Récupérer tous les mots du corpus
+        # Récupération de l'integralité des mots du corpus
         mots_uniques = set()
         docs_list = list(self.corpus.id2doc.values())
 
@@ -96,7 +96,7 @@ class SearchEngine:
         Recherche en utilisant la similarité cosinus.
         Retourne un DataFrame pandas.
         """
-        # Nettoyer et vectoriser la requête
+        # Nettoyage et vectorisation de la requête
         mots_requete = self.corpus.nettoyer_texte(query).split()
         vec_requete = np.zeros(len(self.vocab))
 
