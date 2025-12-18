@@ -3,3 +3,11 @@ pandas==2.1.4
 xmltodict==0.13.0
 numpy
 scipy
+ipywidgets>=8.1.0
+tqdm>=4.60.0
+jupyter>=1.0.0
+streamlit>=1.24.0
+plotly
+protobuf==3.20.*
+altair<5
+click<8.1
