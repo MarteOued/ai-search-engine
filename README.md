@@ -1,81 +1,129 @@
-Moteur de Recherche d'Information sur l'Intelligence Artificielle
+<h1 align="center">🔍 AI Search Engine</h1>
 
-Auteurs 
+<p align="center">
+  <i>Moteur de recherche d'information vectoriel sur l'Intelligence Artificielle, construit <b>from scratch</b> en Python.</i>
+</p>
 
-Julien & Martine
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/NLP-TF--IDF-success?style=flat" />
+  <img src="https://img.shields.io/badge/UI-Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white" />
+  <img src="https://img.shields.io/badge/Viz-Plotly-3F4F75?style=flat&logo=plotly&logoColor=white" />
+  <img src="https://img.shields.io/badge/Data-Reddit%20%2B%20Arxiv-orange?style=flat" />
+  <img src="https://img.shields.io/badge/Status-Production-brightgreen?style=flat" />
+</p>
 
-Description 
+<p align="center">
+  <a href="https://youtu.be/40vuFwfoOAA">▶️ Voir la démo vidéo</a> ·
+  <a href="https://portfoliomarte.vercel.app">🌐 Portfolio</a>
+</p>
 
-Ce projet implémente un moteur de recherche d'information complet sur le thème de l'Intelligence Artificielle. Les données proviennent de Reddit et Arxiv. L'objectif est de structurer ces données, de les analyser textuellement et de permettre une recherche pertinente par mots-clés en utilisant un modèle vectoriel. Le projet inclut désormais une interface graphique web permettant la visualisation des données et le filtrage dynamique des résultats.
+---
 
-Fonctionnalités 
+## 🎯 Aperçu
 
-Acquisition de données depuis les API Reddit et Arxiv 
+Ce projet est un **moteur de recherche d'information complet** sur le thème de l'Intelligence Artificielle. À partir de documents collectés sur **Reddit** et **Arxiv**, il permet :
 
-Structuration du code avec des classes (POO) et patterns (Singleton, Factory) 
+- 🔍 La **recherche vectorielle** par mots-clés via un modèle TF-IDF implémenté from scratch
+- 📊 L'**exploration analytique** du corpus (distribution temporelle, top termes, sources)
+- 🎨 Une **interface web moderne** en Streamlit avec dashboard Plotly
 
-Analyse textuelle : nettoyage, calcul de fréquences 
+> **Pourquoi ce projet ?** Pour comprendre en profondeur comment fonctionne la recherche d'information moderne (avant l'ère des embeddings), en codant chaque brique sans bibliothèques NLP haut niveau.
 
-Moteur de recherche vectoriel : matrice TF-IDF et similarité Cosinus 
+## ✨ Fonctionnalités
 
-Interface Web interactive (Streamlit) : recherche, filtrage par date/source 
+- 🌐 **Acquisition multi-sources** — APIs Reddit (PRAW) & Arxiv
+- 🏗️ **Architecture POO** — patterns Singleton (Corpus) et Factory (Documents)
+- 🔡 **Pipeline NLP complet** — tokenisation, nettoyage, vectorisation
+- 📐 **Modèle vectoriel TF-IDF** — from scratch avec similarité cosinus
+- 🖥️ **Interface web moderne** — design dark, badges, cards animées
+- 📊 **Dashboard analytique** — KPI, distribution sources, timeline, top termes
+- 🎛️ **Filtres dynamiques** — par source, par période, par nombre de résultats
+- 💾 **Persistance** — sauvegarde / chargement du corpus en CSV
 
-Visualisation de données : graphiques temporels, répartition des sources et analyse lexicale 
+## 🛠️ Stack Technique
 
-Sauvegarde et chargement de données au format CSV
+| Catégorie | Technologies |
+|-----------|--------------|
+| **Langage** | Python 3.10+ |
+| **NLP** | TF-IDF (from scratch), similarité cosinus |
+| **APIs** | PRAW (Reddit), arxiv-py |
+| **Interface** | Streamlit |
+| **Visualisation** | Plotly Express, Plotly Graph Objects |
+| **Data** | Pandas, NumPy |
+| **Architecture** | POO (Singleton, Factory) |
 
-Statistiques 
+## 🚀 Quick Start
 
-200 documents récupérés (100 depuis Reddit + 100 depuis Arxiv) 
+### Installation
 
-Filtrage et nettoyage automatique des textes Indexation vectorielle sur l'ensemble du vocabulaire enrichi
-
-Installation 
-
-Avant de lancer le projet, assurez-vous d’avoir Python installé sur votre ordinateur. Installez ensuite les bibliothèques nécessaires à l’aide du fichier requirements.txt. 
-
-Attention : Ce projet nécessite des versions spécifiques de certaines librairies pour l'interface graphique. 
-
+```bash
+git clone https://github.com/MarteOued/ai-search-engine.git
+cd ai-search-engine
 pip install -r requirements.txt
+```
 
-Utilisation Le projet peut être utilisé de deux manières :
+### Acquisition des données (à faire 1 fois)
 
-    Mode Console (Génération des données) Pour récupérer les données, construire le corpus et voir une démonstration textuelle : python main.py
+```bash
+python main.py
+```
 
-    Mode Interface Web (Recherche et Visualisation) Pour lancer l'application graphique dans votre navigateur : streamlit run interface.py
+Cette étape récupère les documents depuis Reddit & Arxiv, construit le corpus, calcule la matrice TF-IDF et sauvegarde le tout dans `corpus_v1.csv`.
 
-Structure du projet
+### Lancer l'interface web
 
- ├── main.py # Programme principal (Acquisition & Démo console) 
- 
- ├── interface.py # Application Web et Visualisation (Streamlit) 
- 
- ├── SearchEngine.py # Moteur de recherche (Logique TF-IDF, Cosinus) 
- 
- ├── Corpus.py # Classe Corpus (Singleton, Gestion des données) 
- 
- ├── Document.py # Classes Document, RedditDocument, ArxivDocument 
- 
- ├── Author.py # Classe Author 
- 
- ├── DocumentFactory.py # Factory Pattern pour création d'objets 
- 
- ├── corpus_v1.csv # Base de données documentaire obtenu en lancant main.py
- 
- ├── frequences.csv # Statistiques textuelles pour la DataVisualisation obtenu en lancant main.py
- 
- ├── requirements.txt # Bibliothèques nécessaires (versions figées) 
- 
- ├── .gitignore # Fichiers à ignorer par Git 
- 
- └── README.md # Documentation du projet
+```bash
+streamlit run interface.py
+```
 
-Versions 
+L'application s'ouvre sur `http://localhost:8501`.
 
-Version 1 : TD3-5 — Acquisition, Structuration et Héritage. 
+## 📂 Structure du projet
 
-Version 2 : TD6-7 — Analyse textuelle, Indexation et Moteur de recherche. 
+```
+ai-search-engine/
+├── main.py                  # Acquisition des données & génération du corpus
+├── interface.py             # Application Streamlit (recherche + analytics)
+├── SearchEngine.py          # Moteur TF-IDF + similarité cosinus
+├── Corpus.py                # Classe Corpus (Singleton, gestion des docs)
+├── Document.py              # Document, RedditDocument, ArxivDocument
+├── DocumentFactory.py       # Factory Pattern pour la création d'objets
+├── Author.py                # Classe Author
+├── corpus_v1.csv            # Corpus persistant (généré)
+├── frequences.csv           # Statistiques pour la dataviz
+├── requirements.txt         # Dépendances
+└── README.md
+```
 
-Version 3 : TD8-10 — Interface Graphique Web et Visualisation de données.
+## 🧠 Concepts clés
 
-Licence Projet universitaire – Université Lumière Lyon 2. Ce projet a été réalisé dans le cadre d’un travail académique et n’est pas destiné à un usage commercial.
+- **TF-IDF from scratch** — implémentation de Term Frequency × Inverse Document Frequency
+- **Similarité cosinus** — mesure de proximité entre vecteur requête et vecteurs documents
+- **Design Patterns** — Singleton (Corpus unique), Factory (création polymorphe de Documents)
+- **Pipeline NLP** — tokenisation → nettoyage → vectorisation → ranking
+
+## 📈 Évolution du projet
+
+| Version | Période | Contenu |
+|---------|---------|---------|
+| **v1** | TD 3-5 | Acquisition Reddit & Arxiv, structuration POO, héritage |
+| **v2** | TD 6-7 | Analyse textuelle, vectorisation TF-IDF, moteur de recherche |
+| **v3** | TD 8-10 | Interface web Streamlit, visualisation Plotly, filtres dynamiques |
+| **v4** ✨ | 2026 | Refonte UI complète, dashboard analytique, design moderne |
+
+## 🎬 Démo
+
+▶️ [**Voir la démo vidéo sur YouTube**](https://youtu.be/40vuFwfoOAA)
+
+## 👩‍💻 Auteurs
+
+Projet réalisé en binôme dans le cadre du **Master 1 Informatique** — **Université Lumière Lyon 2**.
+
+- **Martine Ouedraogo** — [LinkedIn](https://www.linkedin.com/in/marte-oued) · [Portfolio](https://portfoliomarte.vercel.app) · [GitHub](https://github.com/MarteOued)
+- **Julien**
+
+## 📜 Licence
+
+Projet universitaire — Université Lumière Lyon 2.
+Réalisé dans le cadre d'un travail académique, non destiné à un usage commercial.
