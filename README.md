@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/40vuFwfoOAA">▶️ Voir la démo vidéo</a> ·
+  <a href="https://youtu.be/tBKR8ohQx30">▶️ Voir la démo vidéo</a> ·
   <a href="https://portfoliomarte.vercel.app">🌐 Portfolio</a>
 </p>
 
@@ -36,7 +36,7 @@ Ce projet est un **moteur de recherche d'information complet** sur le thème de 
 - 🏗️ **Architecture POO** — patterns Singleton (Corpus) et Factory (Documents)
 - 🔡 **Pipeline NLP complet** — tokenisation, nettoyage, vectorisation
 - 📐 **Modèle vectoriel TF-IDF** — from scratch avec similarité cosinus
-- 🖥️ **Interface web moderne** — design dark, badges, cards animées
+- 🖥️ **Interface web moderne** — design professionnel, dashboard cards, filtres dynamiques
 - 📊 **Dashboard analytique** — KPI, distribution sources, timeline, top termes
 - 🎛️ **Filtres dynamiques** — par source, par période, par nombre de résultats
 - 💾 **Persistance** — sauvegarde / chargement du corpus en CSV
@@ -114,14 +114,14 @@ ai-search-engine/
 
 ## 🎬 Démo
 
-▶️ [**Voir la démo vidéo sur YouTube**](https://youtu.be/40vuFwfoOAA)
+▶️ [**Voir la démo vidéo sur YouTube**](https://youtu.be/tBKR8ohQx30)
 
 ## 👩‍💻 Auteurs
 
 Projet réalisé en binôme dans le cadre du **Master 1 Informatique** — **Université Lumière Lyon 2**.
 
 - **Martine Ouedraogo** — [LinkedIn](https://www.linkedin.com/in/marte-oued) · [Portfolio](https://portfoliomarte.vercel.app) · [GitHub](https://github.com/MarteOued)
-- **Julien**
+
 
 ## 📜 Licence
 

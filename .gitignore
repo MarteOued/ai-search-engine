@@ -24,3 +24,8 @@ Thumbs.db
 # Fichiers temporaires
 *.log
 *.tmp
+
+# Vidéos (trop lourdes pour git, hébergées sur YouTube)
+*.mp4
+*.mov
+*.avi
